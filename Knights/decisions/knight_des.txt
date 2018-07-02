@@ -1,0 +1,515 @@
+########################################
+###Written by Ogaburan aka Ran Miller###
+########################################
+
+# filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] ('self' MUST be set for decisions targetting only the taker, the other filter types can be set to lessen CPU load)
+# ai_target_filter = [self/court/home_court/vassals/sub_realm/realm/dynasty/all] (which characters for which the AI evaluates the decision.)
+#	court: all characters in the AI's host court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	home_court: all characters in the AI's home court, including prisoners, and characters currently away (wards, prisoners, etc)
+#	vassals: direct vassal rulers of the AI's employer
+#	sub_realm: all characters below the AI's employer
+#	realm: all characters in the same top realm as the AI
+#	dynasty: all members of the same dynasty
+#	all: all living characters (Avoid if possible. VERY CPU-HEAVY!)
+#	
+
+targetted_decisions = {
+	knight_character = {
+		ai_target_filter = close_relatives
+		filter = all
+		only_rulers = yes
+		from_potential = {
+			is_ruler = yes
+			trait = knight
+		}
+		potential = {
+			NOT = { character = FROM }
+			NOT = { trait = dragon }
+			NOT = { culture_group = unoccupied_group }	
+			NOT = { culture_group = winter_group }				
+			NOT = { trait = knight }
+		}
+		allow = {
+			show_only_failed_conditions = yes
+			FROM = {
+				prisoner = no
+				NOT = { is_incapable = yes }
+				NOT = { is_inaccessible_trigger = yes }
+			}
+			OR = {
+				religion = the_seven
+				religion = valyrian_rel
+				religion = rhllor
+			}
+			age = 14
+			OR = {
+				age = 18
+				NOT = { trait = squire }
+			}	
+			OR = {
+				AND = {
+					is_female = no
+					OR = {
+						trait = squire
+						FROM = { NOT = { trait = honorable } }
+					}
+				}	
+				martial = 18
+				trait = master_warrior 
+				trait = skilled_warrior 
+			}
+			OR = {
+				at_location = FROM
+				AND = {
+					is_ruler = no
+					liege = { character = FROM }
+				}
+				is_child_of = FROM
+			}	
+			is_liege_or_above = FROM
+			prisoner = no
+			is_incapable = no
+			NOT = { is_inaccessible_trigger = yes }			
+			NOT = { trait = maester }
+			NOT = { trait = archmaester }
+			is_priest = no
+			NOT = { primary_title = { title = k_the_most_devout } }		
+		}
+		effect = {			
+			if = {
+				limit = { 
+					is_female = yes 
+					NOT = { trait = kingsguard }
+				}			
+				if = {
+					limit = { NOT = { culture_group = dornish } }
+					tooltip = { prestige = -100 }
+					FROM = { prestige = -100 }
+				}
+				if = {
+					limit = { culture_group = dornish } 
+					tooltip = { prestige = -50 }
+					FROM = { prestige = -50 }
+				}				
+			}		
+			if = {
+				limit = { 		
+					NOT = { trait = squire }
+					trait = poor_warrior 
+				}
+				tooltip = { prestige = -100 }
+				FROM = { prestige = -100 }
+			}
+			if = {
+				limit = { 		
+					NOT = { trait = squire }
+					NOT = {
+						OR = {
+							trait = master_warrior 
+							trait = skilled_warrior 
+							trait = trained_warrior 
+							trait = poor_warrior 
+						}	
+					}
+				}
+				tooltip = { prestige = -150 }
+				FROM = { prestige = -150 }
+			}
+			tooltip = {
+				if = {
+					limit = { trait = squire }
+					prestige = 40
+				}
+			}
+			knight_character_effect = yes			
+			if = {
+				limit = { NOT = { is_child_of = FROM } }
+				opinion = {
+					modifier = opinion_knighted_me
+					who = FROM
+					years = 10
+				}				
+			}
+			hidden_tooltip = { 
+				narrative_event = { id = knight.12 } 
+				FROM = { narrative_event = { id = knight.11 } } 
+				if = {
+					limit = {
+						FROM = { ai = no }
+						OR = {
+							is_ruler = yes
+							is_close_relative = FROM
+							prestige = 250
+						}
+					}
+					FROM = {
+						chronicle = {
+							entry = CHRONICLE_KNIGHTED_CHARACTER
+							portrait = [Root.GetID]
+						}
+					}
+				}
+			}
+		}
+		ai_check_interval = 6
+		ai_will_do = { 
+			factor = 1 
+			modifier = {
+				factor = 0.9
+			}
+			modifier = {
+				factor = 0
+				NOT = { is_child_of = FROM }
+			}	
+			modifier = {
+				factor = 0
+				NOT = { trait = squire }
+				NOT = {
+					OR = {
+						trait = trained_warrior 
+						trait = skilled_warrior 
+						trait = master_warrior 
+					}	
+				}
+				FROM = {
+					OR = {
+						trait = honorable
+						trait = just
+						trait = honest
+						trait = humble
+					}
+				}
+			}
+			modifier = {
+				factor = 0.1
+				is_female = yes
+			}
+			modifier = {
+				factor = 0
+				is_female = yes
+				NOT = { reverse_opinion = { who = FROM value = 0 } }
+			}
+			modifier = {
+				factor = 0
+				is_female = yes
+				FROM = {
+					OR = {
+						trait = honorable
+						trait = just
+						trait = honest
+						trait = humble
+						trait = slothful
+					}
+				}
+			}
+		}
+	}
+	
+	knight_son_bribe_septon = {
+		ai_target_filter = home_court
+		filter = sub_realm
+		only_rulers = yes
+		from_potential = {
+			is_ruler = yes
+			#ai = no
+			NOT = { trait = knight } 	
+		}
+		
+		potential = {
+			OR = {
+				 religion = the_seven
+				 religion = valyrian_rel
+				 religion = rhllor
+			}
+			is_child_of = FROM
+			is_liege_or_above = FROM
+			prisoner = no
+			age = 18
+			is_female = no
+			NOT = { trait = knight }
+			can_press_claims_trigger = yes
+			NOT = { trait = drowned }					
+		}
+		
+		allow = {
+			show_only_failed_conditions = yes
+			FROM = { 
+				treasury = 100 
+				prestige = 100 
+				NOT = { trait = zealous }
+				prisoner = no	
+				NOT = { is_inaccessible_trigger = yes }
+				OR = {
+					trait = deceitful
+					trait = ruthless
+					trait = ambitious
+					trait = proud
+					trait = envious		
+				}
+				NOT = { trait = honest }	
+				NOT = { trait = honorable }	
+				is_incapable = no			
+			}
+			NOT = { has_character_modifier = squiering_refused }
+			NOT = { is_inaccessible_trigger = yes }
+			is_incapable = no
+		}
+		
+		effect = {
+			FROM = { 
+				treasury = -100
+				hidden_tooltip = {character_event = {id = knight.9} }
+			}
+			hidden_tooltip = { character_event = {id = knight.10} }
+			knight_character_effect = yes
+			if = {
+				limit = { trait = poor_warrior }
+				prestige = -100
+				FROM = { prestige = -100 }
+			}
+			if = {
+				limit = {
+					NOT = {
+						OR = {
+							trait = poor_warrior 
+							trait = trained_warrior 
+							trait = skilled_warrior 
+							trait = master_warrior 
+						}	
+					}		
+				}
+				prestige = -150
+				FROM = { prestige = -150 }
+			}
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0.3
+			}
+			modifier = {
+				factor = 0
+				FROM = { NOT = { treasury = 200 } }
+			}
+			modifier = {
+				factor = 0
+				FROM = { has_character_modifier = loan_timer }
+			}
+		}
+	}
+
+	take_ward_squire = {
+		is_high_prio = yes
+		ai_target_filter = court
+		filter = all
+		from_potential = {
+			trait = knight
+		}
+		potential = {
+			educator = { character = FROM }	
+			is_female = no		
+			NOT = { trait = knight }
+			NOT = { trait = squire }		
+			NOT = { trait = dragon }		
+		}		
+		allow = {
+			show_only_failed_conditions = yes
+			FROM = { 
+				NOT = { is_inaccessible_trigger = yes } 
+				OR = {		
+					trait = master_warrior
+					trait = skilled_warrior
+					trait = trained_warrior
+					AND = {
+						NOT = { age = 50 }
+						trait = poor_warrior
+					}
+					NOT = { age = 40 }
+				}
+			}
+			prisoner = no
+			age = 8
+			NOT = { has_character_modifier = squiering_refused }
+			NOT = { trait = dwarf }
+			NOT = { has_severe_disability_trigger = yes }
+			OR = {
+				trait = trained_warrior
+				martial = 5
+				AND = {
+					NOT = { age = 11 }
+					martial = 3
+				}
+			}
+			NOT = { is_inaccessible_trigger = yes }
+		}
+		
+		effect = {
+			hidden_tooltip = {
+				if = {
+					limit = { 
+						FROM = { 
+							OR = { 
+								trait = diligent 
+								trait = duelist
+							}	
+						} 
+					}
+					character_event = { id = knight.8 days = 365 }
+				}
+				character_event = { id = knight.16 }
+				opinion = {
+					modifier = opinion_happy_with_guardian
+					who = FROM
+					years = 5
+				}
+			}
+			add_trait = squire
+			if = {
+				limit = {
+					FROM = { trait = master_warrior }
+				}
+				prestige = 50
+			}
+			if = {
+				limit = {
+					FROM = { trait = skilled_warrior }
+				}
+				prestige = 30
+			}
+			if = {
+				limit = {
+					FROM = { trait = trained_warrior }
+				}
+				prestige = 20
+			}
+			if = {
+				limit = {
+					FROM = { 
+						NOT = {
+							OR = {
+								trait = master_warrior
+								trait = skilled_warrior 
+								trait = trained_warrior
+							}
+						}	
+					}
+				}
+				prestige = 10
+			}
+		}
+		
+		ai_check_interval = 3
+		
+		ai_will_do = {
+			factor = 1
+		}
+	}
+}
+
+decisions = {
+
+	buy_knighthood = {
+	
+		potential = {
+		    OR = {
+				religion = the_seven
+				religion = valyrian_rel
+				religion = rhllor
+			}		
+			age = 18
+			NOT = { trait = knight }					
+		}
+		
+		allow = {
+			show_only_failed_conditions = yes
+			treasury = 100
+			prestige = 100 
+			prisoner = no
+			NOT = { trait = zealous } 
+			NOT = { has_character_modifier = squiering_refused } 
+			NOT = { is_inaccessible_trigger = yes }
+			is_incapable = no
+			NOT = { trait = honest }
+			NOT = { trait = honorable }		
+			OR = {
+				trait = deceitful
+				trait = ambitious
+				trait = proud
+				trait = envious
+				trait = ruthless
+			}
+			OR = {
+				is_female = no
+				has_ambition = obj_become_a_knight
+			}
+		}
+		
+		effect = {
+			treasury = -100 
+			hidden_tooltip = { character_event = { id = knight.15} } 
+			if = {
+				limit = { 
+					is_female = yes 
+					NOT = { trait = kingsguard }
+				}			
+				if = {
+					limit = { NOT = { culture_group = dornish } }
+					prestige = -100
+				}
+				if = {
+					limit = { culture_group = dornish } 
+					prestige = -50
+				}				
+			}	
+			if = {
+				limit = { 
+					trait = poor_warrior 
+					NOT = { trait = squire }
+				}
+				prestige = -100
+			}
+			if = {
+				limit = {
+					NOT = { trait = squire }
+					NOT = {
+						OR = {
+							trait = poor_warrior 
+							trait = trained_warrior 
+							trait = skilled_warrior 
+							trait = master_warrior 
+						}	
+					}		
+				}
+				prestige = -150
+			}
+			if = {
+				limit = { trait = squire }
+				prestige = 40
+			}
+			knight_character_effect = yes
+			if = {
+				limit = { ai = no }
+				chronicle = {
+					entry = CHRONICLE_BOUGHT_KNIGHTHOOD
+					picture = "GFX_knight"
+				}	
+			}
+		}
+		
+		ai_check_interval = 12
+		
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0
+				NOT = { treasury = 200 }
+			}
+			modifier = {
+				factor = 0
+				has_character_modifier = loan_timer
+			}
+		}
+	}
+}

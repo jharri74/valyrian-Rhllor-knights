@@ -1,0 +1,1909 @@
+decisions = {
+
+	hold_a_epic_tournament = {
+	
+		is_high_prio = yes
+		only_playable = yes
+		
+		potential = {
+			is_ruler = yes
+			OR = {
+				is_patrician = yes
+				AND = {
+					demesne_size = 1
+					higher_tier_than = BARON	
+				}	
+			}
+			OR = {
+				trait = knight
+				OR = {
+				   religion = the_seven
+				   religion = valyrian_rel
+				   religion = rhllor
+			    }
+			}						
+			is_theocracy = no
+			NOT = { trait = kingsguard }
+			NOT = { trait = nightswatch }
+			NOT = { has_landed_title = c_the_citadel }		
+			NOT = { has_character_flag = no_kingship }
+			NOT = { has_character_flag = inherit_war }				
+			NOT = { has_character_flag = danys_eastern_quest }	
+			OR = {			
+				higher_tier_than = DUKE
+				rules_in_active_region_trigger = yes #optimisation	
+			}
+		}
+		
+		allow = {
+			show_only_failed_conditions = yes
+			war = no
+			NOT = {
+				any_liege = {
+					war = yes
+				}
+			}
+			NOT = { top_liege = { trait = civil_war } }
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			is_adult = yes	
+			treasury = 75				
+			is_incapable = no
+			custom_tooltip = {
+				text = hold_a_epic_tournamentREALMTOURNEY
+				hidden_tooltip = { 
+					#Cannot hold tourney if....
+					NOT = { any_liege = { has_character_modifier = holding_epic_tournament } } #Any liege is holding one
+					NOT = {  #Any grand tournaments are in progress		
+						top_liege = {
+							any_realm_lord = {
+								NOT = { tier = BARON }
+								has_character_modifier = holding_epic_tournament
+								OR = {
+									has_character_flag = grand_tourny
+									has_character_flag = king_tourny
+								}
+							}
+						}
+					}
+					NOT = { #Any duke within same kingdom is holding a regional one
+						any_liege = { 
+							tier = KING
+							any_vassal = {
+								NOT = { tier = BARON }
+								has_character_modifier = holding_epic_tournament
+								has_character_flag = normal_tourny
+							}
+						}
+					}				
+					OR = { #If sworn directly to emperor and any duke who is also sworn directly is a regional holding one
+						higher_tier_than = DUKE
+						any_liege = { tier = KING }
+						NOT = {
+							any_liege = {
+								tier = EMPEROR
+								any_vassal = {
+									NOT = { tier = BARON }
+									has_character_modifier = holding_epic_tournament
+									has_character_flag = normal_tourny
+								}	
+							}
+						}	
+					}
+					# OR = { #Holder is count tier and another nearby count is holding one
+						# NOT = { tier = COUNT }
+						# NOT = {
+							# any_demesne_province = {
+								# OR = {
+									# any_neighbor_province = {
+										# OR = {
+											# any_province_lord = {
+												# tier = COUNT
+												# has_character_modifier = holding_epic_tournament
+											# }
+											# duchy = {
+												# holder_scope = {
+													# tier = DUKE
+													# any_vassal = {
+														# tier = COUNT
+														# has_character_modifier = holding_epic_tournament
+													# }	
+												# }
+											# }
+										# }	
+									# }
+									# duchy = {
+										# holder_scope = {
+											# tier = DUKE
+											# any_vassal = {
+												# tier = COUNT
+												# has_character_modifier = holding_epic_tournament
+											# }	
+										# }
+									# }
+								# }	
+							# }	
+						# }
+					# }	
+				}
+			}
+			custom_tooltip = {
+				text = hold_a_epic_tournamentCOOLDOWN
+				hidden_tooltip = { 
+					OR = {
+						NOT = { has_character_flag = epic_tournament }
+						had_character_flag = { flag = epic_tournament days = 3650 }
+					}
+				}
+			}
+			custom_tooltip = {
+				text = hold_a_epic_tournamentATTENDING
+				hidden_tooltip = { 
+					NOT = { has_character_flag = attending_tournament }
+				}
+			}
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		
+		effect = {
+			clr_character_flag = epic_tournament
+			set_character_flag = epic_tournament
+			set_character_flag = tourny_in_progress
+			set_character_flag = do_not_disturb 
+			clr_character_flag = tournament_has_ended						
+			add_character_modifier = {
+				name = "holding_epic_tournament"
+				duration = 400
+			}
+			character_event = { id = tourney.1 tooltip = "tournament_invite" }
+			hidden_tooltip = {
+				character_event = { id = 70001 days = 30 } # Tournament start
+			}
+		}
+		ai_check_interval = 12
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0.24
+			}
+			
+			#AI Wont Do!
+			modifier = {
+				factor = 0
+				has_character_modifier = loan_timer	
+				OR = {
+					stewardship = 9
+					trait = temperate
+					NOT = { 
+						OR = {
+							trait = gluttonous 
+							trait = hedonist
+						}	
+					}	
+				}	
+			}
+			modifier = { #save up for higher tourney
+				factor = 0
+				OR = {
+					trait = ambitious
+					trait = proud
+					trait = charitable
+				}
+				OR = {
+					AND = {
+						yearly_income = 75
+						NOT = { treasury = 150 }
+					}
+					AND = {
+						OR = {
+							tier = EMPEROR
+							yearly_income = 150
+						}	
+						NOT = { treasury = 300 }
+					}
+				}
+			}
+			
+			#AI unlikley to do
+			modifier = {
+				factor = 0.2
+				OR = {
+					trait = shy
+					trait = greedy
+					trait = temperate
+					trait = stressed
+					trait = depressed
+					trait = slothful
+				}	
+			}
+			
+			#AI likely to do
+			modifier = {
+				factor = 5
+				OR = {
+					trait = gregarious
+					trait = charitable
+					trait = gluttonous 
+					trait = hedonist
+					trait = duelist
+				}	
+			}			
+		}
+	}
+	
+#	buy_indulgence_for_sins = {
+#		potential = {
+#			religion = the_seven
+#			age = 16
+#			demesne_size = 1
+#			NOT = { has_character_flag = ask_for_indulgence }
+#		}
+#		allow = {
+#			scaled_wealth = 1.0
+#			is_heretic = no
+#		}
+#		effect = {
+#			set_character_flag = ask_for_indulgence
+#			rightful_religious_head_scope = {
+#				character_event = { id = 39250 days = 5 random = 12 tooltip = "indulgence_ask" }
+#			}
+#		}
+#		ai_will_do = {
+#			factor = 1
+#			modifier = {
+#				factor = 0
+#				NOT = {
+#					scaled_wealth = 10.0
+#				}
+#			}
+#		}
+#	}
+
+#	issue_declaration_of_repentance = {
+#		potential = {
+#			religion = the_seven
+#			age = 16
+#			demesne_size = 1
+#			NOT = { has_character_flag = ask_for_repentance }
+#			rightful_religious_head_scope = {
+#				ROOT = {
+#					excommunicated_for = PREV
+#				}
+#			}
+#		}
+#		allow = {
+#			scaled_wealth = 2.0
+#			is_heretic = no
+#		}
+#		effect = {
+#			set_character_flag = ask_for_repentance
+#			rightful_religious_head_scope = {
+#				character_event = { id = 39252 days = 5 random = 12 tooltip = "repentance_ask" }
+#			}
+#		}
+#		ai_will_do = {
+#			factor = 1
+#			modifier = {
+#				factor = 0
+#				NOT = {
+#					scaled_wealth = 10.0
+#				}
+#			}
+#		}
+#	}
+	
+	demand_liege_title = {
+		is_high_prio = yes
+		ai = no
+		
+		potential = {
+			ai = no
+			age = 16
+			prisoner = no
+			is_playable = yes
+			tier = COUNT
+			demesne_size = 1
+			is_incapable = no
+			NOT = { has_character_flag = requested_de_jure_title }
+			liege = {
+				NOT = { character = ROOT }
+				any_demesne_title = {
+					tier = DUKE
+					has_de_jure_pretension = ROOT
+					can_be_given_away = yes
+					lower_tier_than = PREV
+					NOT = {
+						holder_scope = {
+							any_demesne_title = {
+								tier = COUNT
+								de_jure_liege_or_above = PREVPREV
+							}
+						}
+					}	
+					OR = {
+						NOT = { title = d_dragonstone }
+						NOT = {
+							holder_scope = {
+								dynasty = 496
+							}
+						}	
+					}
+				}
+			}			
+		}
+		allow = {
+			liege = {
+				OR = {
+					AND = {
+						has_regent = no
+						opinion = { who = ROOT value = 25 }
+					}
+					AND = {
+						has_regent = yes
+						regent = { opinion = { who = ROOT value = 25 } }
+					}
+				}	
+			}
+		}
+		effect = {
+			set_character_flag = requested_de_jure_title
+			liege = { 
+				random_demesne_title = {
+					limit = {
+						tier = DUKE
+						has_de_jure_pretension = ROOT
+						can_be_given_away = yes
+						lower_tier_than = PREV
+						NOT = {
+							holder_scope = {
+								any_demesne_title = {
+									tier = COUNT
+									de_jure_liege_or_above = PREVPREV
+								}
+							}
+						}	
+						OR = {
+							NOT = { title = d_dragonstone }
+							NOT = {
+								holder_scope = {
+									dynasty = 496
+								}
+							}	
+						}
+					}
+					save_event_target_as = 63040_title
+					holder_scope = { letter_event = { id = vassal_request.400 days = 4 tooltip = "EVTTOOLTIP63041" } }# "vassal_request_events.txt"
+				}			
+			} 
+		}
+		ai_will_do = {
+			factor = 0 # The AI is limited to the similar event 63040
+		}
+	}
+	
+	petition_doge_for_tp = {
+		is_high_prio = yes
+		only_playable = yes
+		
+		potential = {
+			is_merchant_republic = no
+			is_patrician = yes
+			liege = { is_merchant_republic = yes }
+			NOT = { has_character_flag = petition_doge_for_tp_taken }
+			OR = {
+				liege = {
+					any_vassal = {
+						is_patrician = yes
+						num_of_trade_post_diff = {
+							character = ROOT
+							value = 10
+						}
+					}
+				}
+				AND = {
+					NOT = { num_of_trade_posts = 1 }
+					liege = {
+						any_vassal = {
+							is_patrician = yes
+							num_of_trade_posts = 10
+						}
+					}
+				}
+			}
+		}
+		allow = {
+			liege = {
+				opinion = {
+					who = ROOT
+					value = 25
+				}
+			}
+		}
+		effect = {
+			set_character_flag = petition_doge_for_tp_taken
+			liege = {
+				letter_event = { id = REP.500 days = 5 tooltip = EVTTOOLTIP_REP_500 }
+			}
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	
+	usurp_tp = {
+		is_high_prio = yes
+		only_playable = yes
+		
+		potential = {
+			is_merchant_republic = yes
+			is_patrician = yes
+			NOT = { has_character_flag = usurp_tp_taken }
+			OR = {
+				any_vassal = {
+					is_patrician = yes
+					num_of_trade_post_diff = {
+						character = ROOT
+						value = 10
+					}
+				}
+				AND = {
+					NOT = { num_of_trade_posts = 1 }
+					any_vassal = {
+						is_patrician = yes
+						num_of_trade_posts = 10
+					}
+				}
+			}
+		}
+		allow = {
+			is_merchant_republic = yes
+			prisoner = no
+		}
+		effect = {
+			set_character_flag = usurp_tp_taken
+			if = {
+				limit = {
+					num_of_trade_posts = 1
+					any_vassal = {
+						is_patrician = yes
+						num_of_trade_post_diff = {
+							character = ROOT
+							value = 10
+						}
+					}
+				}
+				random_vassal = {
+					limit = {
+						is_patrician = yes
+						num_of_trade_post_diff = {
+							character = ROOT
+							value = 10
+						}
+					}
+					set_character_flag = target_patrician_doge
+					letter_event = { id = REP.510 days = 5 tooltip = EVTTOOLTIP_REP_510 }
+				}
+			}
+			if = {
+				limit = {
+					NOT = { num_of_trade_posts = 1 }
+					any_vassal = {
+						is_patrician = yes
+						num_of_trade_posts = 10
+					}
+				}
+				random_vassal = {
+					limit = {
+						is_patrician = yes
+						num_of_trade_posts = 10
+					}
+					set_character_flag = target_patrician_doge
+					letter_event = { id = REP.510 days = 5 tooltip = EVTTOOLTIP_REP_510 }
+				}
+			}
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	hold_an_archery_tournament = {
+		is_high_prio = yes
+		only_playable = yes
+		
+		potential = {
+			is_playable = yes
+			culture = summer_islander
+			OR = {
+				NOT = { has_character_flag = archery_tournament }
+				had_character_flag = { flag = archery_tournament days = 3650 }
+			}	
+			NOT = { 
+				any_liege = {
+					has_character_flag = archery_tourny_in_progress
+				}
+			}	
+			OR = {			
+				higher_tier_than = DUKE
+				rules_in_active_region_trigger = yes #optimisation	
+			}			
+		}
+		allow = {
+			war = no
+			NOT = {
+				any_liege = {
+					war = yes
+				}
+			}
+			age = 16
+			conditional_tooltip = {
+				trigger = { lower_tier_than = DUKE }
+				wealth = 75
+			}
+			conditional_tooltip = {
+				trigger = { tier = DUKE }
+				wealth = 125
+			}
+			conditional_tooltip = {
+				trigger = { tier = KING }
+				wealth = 200
+			}
+			conditional_tooltip = {
+				trigger = { tier = EMPEROR }
+				wealth = 300
+			}
+			#prestige = 200		
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		effect = {
+			set_character_flag = archery_tournament
+			set_character_flag = archery_tourny_in_progress
+			clr_character_flag = archery_tournament_has_ended
+			set_character_flag = do_not_disturb
+			if = {
+				limit = { tier = EMPEROR }
+				wealth = -300
+			}	
+			if = {
+				limit = { tier = KING }
+				wealth = -200
+			}
+			if = {
+				limit = { tier = DUKE }
+				wealth = -125
+			}
+			if = {
+				limit = { lower_tier_than = DUKE }
+				wealth = -75
+			}
+			add_character_modifier = {
+				name = "holding_epic_tournament"
+				duration = 365
+			}
+			character_event = { id = archery.500 tooltip = TOOLTIParchery.500 }
+			hidden_tooltip = {
+				character_event = { id = archery.2 days = 30 } # Tournament start
+				any_realm_character = {
+					limit = {		
+						NOT = { trait = dragon }
+						culture = summer_islander
+						OR = {
+							trait = master_warrior
+							trait = skilled_warrior
+							prestige = 200
+							has_job_title = job_marshal
+							is_ruler = yes
+							any_dynasty_member = { is_ruler = yes }
+							AND = {
+								trait = trained_warrior
+								ROOT = { NOT = { higher_tier_than = DUKE } }
+							}
+							AND = {
+								trait = poor_warrior
+								ROOT = { NOT = { higher_tier_than = COUNT } }
+							}
+						}	
+					}
+					clr_character_flag = tournament_has_ended
+					letter_event = { id = archery.1 }
+				}	
+			}	
+		}
+		ai_check_interval = 12
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				OR = {
+					NOT = { wealth = 250 }
+					has_character_modifier = loan_timer
+				}	
+				OR = {
+					stewardship = 9
+					trait = temperate
+					NOT = { 
+						OR = {
+							trait = gluttonous 
+							trait = hedonist
+							trait = slothful
+						}	
+					}	
+				}	
+			}	
+			modifier = {
+				factor = 0.2
+				OR = {
+					trait = shy
+					trait = greedy
+					trait = temperate
+				}	
+			}	
+			modifier = {
+				factor = 3
+				OR = {
+					trait = gregarious
+					trait = charitable
+					trait = gluttonous 
+					trait = hedonist
+				}	
+			}
+		}
+	}
+	
+	call_a_grand_council = {
+		is_high_prio = yes
+		only_independent = yes
+		potential = {
+			independent = yes
+			has_ambition = obj_expand_realm	
+			NOT = { has_character_flag = called_grand_council }
+			NOT = { has_character_flag = may_call_ambition_invasion }
+			NOT = { government = triarch_merchant_republic_government }
+		}
+		allow = {
+			prestige = 1000
+			wealth = 100
+			war = no
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			conditional_tooltip = {
+				trigger = { NOT = { tier = COUNT } } #lord tier can ignore these conditions
+				OR = {
+					custom_tooltip = {
+						text = call_a_grand_councilFACTION
+						hidden_tooltip = { #Either....
+							OR = {					
+								AND = { #Liege/Crown Loyalist faction is 100% strength
+									NOT = { tier = EMPEROR }
+									any_vassal = {
+										leads_faction = faction_liege_loyalist
+										faction_power = {
+											faction = faction_liege_loyalist
+											power = 1
+										}
+									}							
+								}	
+								AND = {
+									tier = EMPEROR
+									any_vassal = {
+										leads_faction = faction_crown_loyalist
+										faction_power = {
+											faction = faction_crown_loyalist
+											power = 1
+										}
+									}
+								}
+								NOT = { #Every capable, adult vassal is in the liege/crown loyalist faction
+									any_vassal = {
+										NOT = { tier = BARON }
+										is_adult = yes
+										is_landed = yes
+										prisoner = no
+										is_incapable = no
+										NOT = { trait = kingsguard }
+										NOT = { trait = archmaester }
+										OR = {
+											AND = {
+												ROOT = { NOT = { tier = EMPEROR } }
+												NOT = { in_faction = faction_liege_loyalist }
+											}	
+											AND = {
+												ROOT = { tier = EMPEROR }
+												NOT = { in_faction = faction_crown_loyalist }
+											}	
+										}	
+									}
+								}						
+							}	
+						}
+					}
+					custom_tooltip = { #Every high ranking vassal has positive opinion
+						text = call_a_grand_councilFACTIONB
+						hidden_tooltip = {
+							NOT = { #update tooltip if this changes
+								any_vassal = {
+									NOT = { tier = BARON }
+									OR = {
+										higher_tier_than = COUNT
+										is_patrician = yes
+										is_councillor = yes
+										among_most_powerful_vassals = 3	
+									}
+									NOT = { opinion = { who = ROOT value = 0 } }								
+								}
+							}						
+						}
+					}
+				}	
+			}	
+		}
+		effect = {
+			set_character_flag = called_grand_council
+			wealth = -100
+			character_event = { id = ambition.10 tooltip = TOOLTIPambition.10 }
+		}
+		ai_check_interval = 3
+		ai_will_do = {
+			factor = 100
+		}
+	}
+	call_a_triarch_council = {
+		is_high_prio = yes
+		only_independent = yes
+		potential = {
+			independent = yes
+			has_ambition = obj_expand_realm	
+			NOT = { has_character_flag = called_grand_council }
+			NOT = { has_character_flag = may_call_ambition_invasion }
+			NOT = { has_character_flag = new_valyria_ambition_invasion }
+			government = triarch_merchant_republic_government
+		}
+		allow = {
+			prestige = 1000
+			war = no
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }
+			
+			#All three triarchs must be tigers
+			trait = tiger
+			custom_tooltip = {
+				text = TOOLTIPcall_a_triarch_council
+				hidden_tooltip = {
+					any_realm_character = {
+						count = 2
+						has_character_flag = triarch
+						trait = tiger
+						NOT = { reverse_has_opinion_modifier = { who = ROOT modifier = opinion_invasion_bad } }
+					}
+				}
+			}			
+		}
+		effect = {
+			set_character_flag = called_grand_council
+			character_event = { id = ambition.62 tooltip = TOOLTIPambition.62 }
+		}
+		ai_check_interval = 3
+		ai_will_do = {
+			factor = 100
+		}
+	}
+		
+	form_new_kingdom = {
+		is_high_prio = yes
+		only_independent = yes
+		potential = {
+			OR = {
+				has_dlc = "Charlemagne"
+				has_game_rule = { name = shattered_realms value = duchies }
+				has_game_rule = { name = shattered_realms value = counties }
+			}
+			is_playable = yes			
+			tier = DUKE
+			demesne_size = 1
+			is_nomadic = no
+			NOT = { has_landed_title = c_dosh_khaleen }
+			NOT = { trait = nightswatch }
+			NOT = { trait = kingsguard }
+			NOT = { culture_group = winter_group }	
+			NOT = { culture_group = unoccupied_group }
+			NAND = {
+				trait = wildling
+				capital_scope = { region = world_beyond_the_wall }
+			}
+			# NOT = {
+				# has_game_rule = {
+					# name = dynamic_realms
+					# value = off
+				# }
+			# }
+		}
+		allow = {
+			OR = {
+				realm_size = 20
+				custom_tooltip = {
+					text = form_new_kingdom_requirement_tooltip
+					hidden_tooltip = {
+						any_demesne_title = {
+							count = 2
+							tier = DUKE
+						}
+					}
+				}
+			}
+			conditional_tooltip = {
+				trigger = {
+					OR = {
+						has_game_rule = { name = shattered_realms value = duchies }
+						has_game_rule = { name = shattered_realms value = counties }
+					}	
+				}
+				prestige = 250
+				wealth = 50
+			}
+			
+			conditional_tooltip = {
+				trigger = {
+					NOR = {
+						has_game_rule = { name = shattered_realms value = duchies }
+						has_game_rule = { name = shattered_realms value = counties }
+					}
+				}
+				wealth = 200
+			}
+			custom_tooltip = {
+				text = TOOLTIPINDEPENDENTCONDITION
+				hidden_tooltip = {
+					independent = yes
+					primary_title = { NOT = { check_variable = { which = "de_facto_empire" value = 1 } } }
+				}
+			}
+			is_tributary = no
+			is_adult = yes
+			prisoner = no
+			war = no
+			is_incapable = no		
+		}
+		effect = {
+			#Pick appropriate slavery law
+			hidden_tooltip = {
+				if = {
+					limit = { NOT = { has_game_rule = { name = slavery value = off } } }
+					#Thralldom
+					if = {
+						limit = {
+							OR = {
+								AND = {
+									culture_group = iron_isles_culture
+									NOT = { trait = liberator }
+								}	
+								primary_title = { dejure_liege_title = { has_law = slavery_3 } }
+							}
+						}
+						set_character_flag = slavery_3
+					}
+					#Chattel Slavery, slave owner
+					if = {
+						limit = {
+							NOT = { has_character_flag = slavery_3 }
+							NOT = { trait = liberator }
+							OR = {
+								trait = slave_owner
+								trait = slave_trader
+								has_slavery_culture_trigger = yes
+								has_slavery_religion_trigger = yes
+							}
+						}
+						set_character_flag = slavery_2
+					}
+					if = {
+						limit = {
+							primary_title = { dejure_liege_title = { has_law = slavery_2 } }
+						}
+						clr_character_flag = slavery_3 #overrides thralldom
+						set_character_flag = slavery_2
+					}
+					#Else illegal
+					if = {
+						limit = {
+							NOT = { has_character_flag = slavery_2 }
+							NOT = { has_character_flag = slavery_3 }
+						}
+						set_character_flag = slavery_0
+					}
+				}	
+			}
+			primary_title = {
+				create_title = {
+					tier = KING
+					landless = no
+					temporary = no
+					custom_created = yes
+					culture = ROOT
+					holder = ROOT
+					base_title = THIS
+					copy_title_laws = yes
+				}
+				
+				hidden_tooltip = {
+					empire = {
+						ROOT = {
+							primary_title = {
+								de_jure_liege = PREVPREV
+							}
+						}
+					}						
+				}
+			}
+			hidden_tooltip = {
+				primary_title = {
+					holder_scope = {
+						#Capital duchy becomes dejure in shattered realms
+						if = {
+							limit = {
+								OR = {
+									has_game_rule = { name = shattered_realms value = counties }
+									has_game_rule = { name = shattered_realms value = duchies }
+								}
+							}
+							capital_scope = {
+								duchy = { de_jure_liege = PREVPREVPREV }
+								if = {
+									limit = { NOT = { duchy = { always = yes } } }
+									county = { de_jure_liege = PREVPREVPREV }
+								}
+							}
+						}
+					}
+				}
+			}
+			if = {
+				limit = {
+					OR = {
+						has_game_rule = { name = shattered_realms value = duchies }
+						has_game_rule = { name = shattered_realms value = counties }
+					}
+				}
+				wealth = -50
+			}
+			else = {
+				wealth = -200
+				prestige = 400
+			}		
+			custom_tooltip = { text = form_new_kingdom_tooltip }
+			#make slave law change
+			hidden_tooltip = {
+				if = {
+					limit = {
+						has_character_flag = slavery_0
+						primary_title = { NOT = { has_law = slavery_0 } }
+					}
+					set_character_flag = passive_slave_law_change
+					primary_title = { add_law = slavery_0 }
+					clr_character_flag = slavery_0
+				}
+				if = {
+					limit = {
+						has_character_flag = slavery_2
+						primary_title = { NOT = { has_law = slavery_2 } }
+					}
+					set_character_flag = passive_slave_law_change
+					primary_title = { add_law = slavery_2 }
+					clr_character_flag = slavery_2
+				}
+				if = {
+					limit = {
+						has_character_flag = slavery_3
+						primary_title = { NOT = { has_law = slavery_3 } }
+					}
+					set_character_flag = passive_slave_law_change
+					primary_title = { add_law = slavery_3 }
+					clr_character_flag = slavery_3
+				}
+			}
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 1
+			
+			modifier = {
+				factor = 0
+				NOT = { num_of_duke_titles = 3 }
+				OR = {
+					culture_group = valyrian
+					culture = summer_islander
+				}
+			}
+		}
+	}
+	
+	form_new_empire = {
+		is_high_prio = yes
+		only_independent = yes
+		potential = {
+			OR = {
+				has_dlc = "Charlemagne"
+				has_game_rule = { name = shattered_realms value = duchies }
+				has_game_rule = { name = shattered_realms value = counties }
+			}
+			is_playable = yes
+			tier = KING
+			demesne_size = 1
+			is_nomadic = no
+			NOT = { has_landed_title = c_dosh_khaleen }
+			NOT = { trait = nightswatch }
+			NOT = { trait = kingsguard }
+			NOT = { culture_group = unoccupied_group }
+			NOT = { culture_group = winter_group }	
+			
+			NOT = { has_character_flag = danys_eastern_quest } #Stop Daenerys using it early
+			# NOT = {
+				# has_game_rule = {
+					# name = dynamic_realms
+					# value = off
+				# }
+			# }
+		}
+		allow = {
+			OR = {
+				realm_size = 180
+				custom_tooltip = {
+					text = form_new_empire_requirement_tooltip
+					hidden_tooltip = {
+						any_demesne_title = {
+							count = 3
+							tier = KING
+						}
+					}
+				}
+			}
+			conditional_tooltip = {
+				trigger = { ai = no }
+				wealth = 400
+			}
+			conditional_tooltip = {
+				trigger = { ai = yes }
+				OR = {
+					wealth = 400
+					AND = { #AI may take loan
+						ai = yes
+						monthly_income = 10
+						wealth = 50
+						NOT = { has_character_flag = loan_taken }
+						NOT = { has_character_modifier = loan_timer }
+						NOT = { has_character_flag = offended_moneylenders }
+					}
+				}
+			}
+			prestige = 3000
+			custom_tooltip = {
+				text = TOOLTIPINDEPENDENTCONDITION
+				hidden_tooltip = {
+					independent = yes
+					primary_title = { NOT = { check_variable = { which = "de_facto_empire" value = 1 } } }
+				}
+			}
+			is_tributary = no
+			is_adult = yes
+			prisoner = no
+			war = no
+			is_incapable = no						
+		}
+		effect = {
+			#AI takes loan if shortage of cash
+			if = {
+				limit = { 
+					ai = yes 
+					NOT = { wealth = 400 }
+				}
+				add_character_modifier = {
+					name = "loan_timer"
+					duration = 1825
+				}
+				set_character_flag = loan_taken
+				#200g loan
+				if = {
+					limit = {
+						wealth = 200
+					}
+					wealth = 200
+					set_variable = { which = "loan_amount" value = 200 }	
+					set_character_flag = loan_200				
+				}
+				#400g loan
+				if = {
+					limit = {
+						NOT = { wealth = 200 }
+					}
+					wealth = 400
+					set_variable = { which = "loan_amount" value = 400 }	
+					set_character_flag = loan_400				
+				}
+			}
+			primary_title = {
+				create_title = {
+					tier = EMPEROR
+					landless = no
+					temporary = no
+					custom_created = yes
+					culture = ROOT
+					holder = ROOT
+					base_title = THIS
+					copy_title_laws = yes
+				}
+			}
+			hidden_tooltip = {
+				primary_title = {
+					holder_scope = {
+						#Capital kingdom becomes dejure in shattered realms
+						if = {
+							limit = {
+								OR = {
+									has_game_rule = { name = shattered_realms value = counties }
+									has_game_rule = { name = shattered_realms value = duchies }
+								}
+								capital_scope = { kingdom = { holder_scope = { character = ROOT } } }
+							}
+							capital_scope = {
+								kingdom = { de_jure_liege = PREVPREVPREV }
+							}
+						}
+					}
+				}
+			}
+			wealth = -400
+			custom_tooltip = { text = form_new_empire_tooltip }
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 1
+		}
+	}
+	# Hold Wargames - for nomads
+	hold_nomad_wargames = {
+		only_independent = yes
+		potential = {
+			is_nomadic = yes
+			independent = yes
+			capital_scope = { traditional_nomad_territory_trigger = yes }	
+			NOT = { has_character_modifier = holding_nomad_wargames }
+			NOT = { has_character_modifier = held_nomad_wargames }
+			OR = {			
+				higher_tier_than = DUKE
+				rules_in_active_region_trigger = yes #optimisation	
+			}
+		}
+		allow = {
+			is_adult = yes
+			prisoner = no
+			is_incapable = no
+			NOT = { is_inaccessible_trigger = yes }
+			war = no
+			NOT = {
+				any_demesne_title = {
+					lower_tier_than = DUKE
+					is_occupied = yes
+				}
+			}	
+			wealth = 20
+			prestige = 100
+			custom_tooltip = {
+				text = is_not_busy_trigger_tooltip
+				hidden_tooltip = { NOT = { has_character_flag = do_not_disturb } }
+			}
+		}
+		effect = {
+			wealth = -30
+			add_character_modifier = {
+				name = holding_nomad_wargames
+				duration = -1
+			}
+			set_character_flag = recent_minor_decision
+			set_character_flag = do_not_disturb
+			hidden_tooltip = { character_event = { id = HL.7000 } }
+		}
+		ai_check_interval = 6
+		ai_will_do = {
+			factor = 0.6
+			modifier = {
+				factor = 0
+				NOT = {
+					wealth = 200
+				}
+			}
+			modifier = {
+				factor = 2
+				current_heir = {
+					dynasty = ROOT
+					combat_rating = 60
+				}
+			}
+			modifier = {
+				factor = 0.5
+				NOT = { martial = 10 }
+			}	
+			modifier = {
+				factor = 0
+				has_character_flag = recent_minor_decision
+				NOT = {
+					had_character_flag = {
+						flag = recent_minor_decision
+						days = 730
+					}
+				}
+			}	
+		}
+	}
+	# adopt_feudalism = {
+		# is_high_prio = yes
+		# potential = {
+			# is_republic = no
+			# any_demesne_title = { is_tribal = yes }
+		# }
+		# allow = {
+			# capital_scope = { # Ensure capital is upgraded first, if not already upgraded
+				# OR = {
+					# is_feudal = yes
+					# AND = {
+						# is_tribal = yes
+						# has_building = tb_hillfort_4
+					# }
+				# }
+			# }
+			# any_demesne_title = { # Have atleast one available title for upgrade (could be, but does not have to be capital)
+				# is_tribal = yes
+				# has_any_building = tb_hillfort_4
+			# }
+			# OR = {
+				# liege = { is_tribal = no }
+				# primary_title = { has_law = tribal_organization_4 }
+			# }
+			# # custom_tooltip = { 
+				# # text = TT_NOT_UNREFORMED_PAGAN
+				# # hidden_tooltip = {
+					# # NOT = { religion = norse_pagan }
+					# # NOT = { religion = tengri_pagan }
+					# # NOT = { religion = baltic_pagan }
+					# # NOT = { religion = finnish_pagan }
+					# # NOT = { religion = aztec }
+					# # NOT = { religion = slavic_pagan }
+					# # NOT = { religion = west_african_pagan }
+				# # }
+			# # }
+		# }
+		# effect = {
+			# custom_tooltip = {
+				# text = adopt_feudalism_tooltip_1
+				# hidden_tooltip = {
+					# any_demesne_title = {
+						# if = {
+							# limit = {
+								# is_tribal = yes
+								# has_building = tb_hillfort_4
+							# }
+							# convert_to_castle = yes
+						# }
+					# }
+				# }
+			# }
+			# custom_tooltip = {
+				# text = adopt_feudalism_tooltip_2
+			# }
+			# set_character_flag = achievement_not_a_tribe
+			# if = {
+				# limit = {
+					# ai = no
+				# }
+				# chronicle = {
+					# entry = CHRONICLE_ADOPTED_FEUDALISM
+					# picture = GFX_evt_castle_construction
+				# }
+			# }
+		# }
+		# ai_will_do = {
+			# factor = 1 # On average ca 1 year before taken
+		# }
+	# }
+	
+	# adopt_republicanism = {
+		# is_high_prio = yes
+		# potential = {
+			# is_feudal = no
+			# is_female = no
+			# any_demesne_title = { is_tribal = yes }
+			# OR = {
+				# ai = yes
+				# AND = {
+					# capital_scope = { port = yes }
+					# has_dlc = "The Republic"
+				# }
+			# }
+		# }
+		# allow = {
+			# capital_scope = { # Ensure capital is upgraded first, if not already upgraded
+				# OR = {
+					# is_republic = yes
+					# AND = {
+						# is_tribal = yes
+						# has_building = tb_market_town_4
+					# }
+				# }
+			# }
+			# any_demesne_title = { # Have atleast one available title for upgrade (could be, but does not have to be capital)
+				# is_tribal = yes
+				# has_any_building = tb_market_town_4
+			# }
+			# OR = {
+				# liege = { is_tribal = no }
+				# primary_title = { has_law = tribal_organization_4 }
+			# }
+			# # custom_tooltip = { 
+				# # text = TT_NOT_UNREFORMED_PAGAN
+				# # hidden_tooltip = {
+					# # NOT = { religion = norse_pagan }
+					# # NOT = { religion = tengri_pagan }
+					# # NOT = { religion = baltic_pagan }
+					# # NOT = { religion = finnish_pagan }
+					# # NOT = { religion = aztec }
+					# # NOT = { religion = slavic_pagan }
+					# # NOT = { religion = west_african_pagan }
+				# # }
+			# # }
+		# }
+		# effect = {
+			# hidden_tooltip = {
+				# if = { # Republic setup
+					# limit = { 
+						# is_tribal = yes
+					# }
+					# if = { # create duchy if holder does not have one
+						# limit = {
+							# NOT = { higher_tier_than = COUNT }
+						# }
+						# primary_title = {
+							# create_title = {
+								# tier = DUKE
+								# landless = no
+								# temporary = no
+								# custom_created = yes
+								# culture = ROOT
+								# holder = ROOT
+								# base_title = THIS
+							# }
+						# }
+					# }
+					# create_family_palace = yes
+					# any_unique_dynasty_vassal = { # gives random vassals a family palace
+						# count = 4
+						# limit = {
+							# is_female = no
+							# OR = {
+								# is_republic = yes
+								# is_tribal = yes
+							# }
+							# prisoner = no
+							# is_incapable = no
+							# is_adult = yes
+							# NOT = { 
+								# dynasty = none 
+							# }
+						# }
+						# create_family_palace = yes
+					# }
+				# }
+			# }
+			# custom_tooltip = {
+				# text = adopt_republicanism_tooltip_1
+				# hidden_tooltip = {
+					# any_demesne_title = {
+						# if = {
+							# limit = {
+								# is_tribal = yes
+								# has_building = tb_market_town_4
+							# }
+							# convert_to_city = yes
+						# }
+					# }
+				# }
+			# }
+			# custom_tooltip = {
+				# text = adopt_republicanism_tooltip_2
+			# }
+			# set_character_flag = achievement_res_publica
+			# if = {
+				# limit = {
+					# ai = no
+				# }
+				# chronicle = {
+					# entry = CHRONICLE_FOUNDED_MERCHANT_REPUBLIC
+					# picture = GFX_evt_busy_trading_dock_republic
+				# }
+			# }
+		# }
+		# ai_will_do = {
+			# factor = 0.5 # On average ca 1 year before taken
+			# modifier = {
+				# factor = 2.0
+				# stewardship = 10
+			# }
+			# modifier = {
+				# factor = 2.0
+				# is_republic = yes
+			# }
+		# }
+	# }
+	
+	call_a_great_council = { #council to determine heir
+		is_high_prio = yes
+		only_independent = yes
+		potential = {
+			independent = yes
+			higher_tier_than = DUKE
+			government = feudal_government
+			demesne_size = 1		
+			primary_title = {
+				OR = {
+					tier = EMPEROR
+					NOT = { check_variable = { which = "de_facto_empire" value = 1 } }
+				}
+				NOT = {
+					is_variable_equal = { which = "lord_paramount_status" value = 2 } #interregnum
+				}
+			}		
+			
+			NOT = { has_character_flag = called_great_council }
+		}
+		allow = {
+			primary_title = {
+				has_law = succ_primogeniture
+				OR = {
+					has_law = cognatic_succession
+					has_law = agnatic_succession
+				}	
+			}
+			current_heir = {
+				OR = {
+					is_female = yes 
+					custom_tooltip = {
+						text = TOOLTIPcall_a_great_councilHEIR
+						hidden_tooltip = {
+							AND = {
+								NOT = { is_child_of = ROOT }
+								OR = {
+									NOT = { age = 10 }
+									trait = imbecile
+									trait = inbred
+									trait = incapable
+								}
+							}
+						}
+					}	
+				}	
+				NOT = { has_character_modifier = great_council_heir }
+			}
+			custom_tooltip = {
+				text = TOOLTIPcall_a_great_councilSENIOR
+				hidden_tooltip = {
+					any_dynasty_member = { # a senior heir must be possible
+						ROOT = {
+							primary_title = {
+								would_be_heir_under_law = { who = PREVPREV law = seniority }
+							}
+						}
+						is_female = no 
+						age = 16
+						NOT = { trait = imbecile }
+						NOT = { trait = inbred }
+						is_incapable = no
+					}
+				}
+			}	
+			custom_tooltip = {
+				text = TOOLTIPcall_a_great_councilGLOBAL
+				hidden_tooltip = {
+					OR = {
+						NOT = { has_global_flag = great_council } #so global event targets can be used
+						had_global_flag = { flag = great_council days = 500 }
+					}
+				}
+			}	
+			NOT = { religion = drowned_god } #can use kingsmoots
+			wealth = 100
+			age = 40
+			war = no
+			prisoner = no
+			NOT = { is_inaccessible_trigger = yes }		
+			is_incapable = no
+		}
+		effect = {
+			set_character_flag = called_great_council
+			#set_global_flag = great_council
+			wealth = -100
+			#Find candidates for the throne
+			hidden_tooltip = {
+				#Record gender law
+				primary_title = { 
+					if = {
+						limit = { has_law = agnatic_succession }
+						set_title_flag = agnatic_succession
+					}
+				}
+						
+				#The female/current candidate
+				current_heir = { 
+					save_event_target_as = gc_female_candidate
+					opinion = { who = ROOT modifier = opinion_great_council_candidate }
+					set_variable = { which = "great_council_votes" value = 0 }
+				}
+				
+				#Male preference candidate
+				primary_title = { gender_succ = agnatic }
+				recalc_succession = yes
+				current_heir = { 
+					if = {
+						limit = { NOT = { has_opinion_modifier = { who = ROOT modifier = opinion_great_council_candidate } } }
+						save_event_target_as = gc_male_candidate
+						opinion = { who = ROOT modifier = opinion_great_council_candidate }
+						set_variable = { which = "great_council_votes" value = 0 }
+					}	
+				}
+				
+				#Seniority candidate
+				primary_title = { succession = seniority }
+				recalc_succession = yes
+				current_heir = { 
+					if = {
+						limit = { NOT = { has_opinion_modifier = { who = ROOT modifier = opinion_great_council_candidate } } }
+						save_event_target_as = gc_senior_candidate
+						opinion = { who = ROOT modifier = opinion_great_council_candidate }
+						set_variable = { which = "great_council_votes" value = 0 }
+					}	
+				}
+				
+				#Disinherit the female/current candidate (second heir)
+				primary_title = { 
+					succession = primogeniture 
+					gender_succ = cognatic
+					if = {
+						limit = { has_title_flag = agnatic_succession }
+						gender_succ = agnatic
+						clr_title_flag = agnatic_succession
+					}
+				}
+				recalc_succession = yes
+				current_heir = { 
+					add_trait = disinherited 
+					ROOT = {
+						recalc_succession = yes
+						current_heir = { 
+							if = {
+								limit = { 
+									NOT = { has_opinion_modifier = { who = ROOT modifier = opinion_great_council_candidate } } 
+									is_female = no
+								}
+								save_event_target_as = gc_2nd_candidate
+								opinion = { who = ROOT modifier = opinion_great_council_candidate }
+								set_variable = { which = "great_council_votes" value = 0 }
+							}	
+						}
+					}
+					remove_trait = disinherited 
+				}			
+				recalc_succession = yes			
+			}	
+			character_event = { id = dynasty.20 tooltip = TOOLTIPdynasty.20 }
+		}
+		ai_check_interval = 3
+		ai_will_do = {
+			factor = 0.3
+			
+			modifier = { #can still gain a son
+				factor = 0
+				NOT = { age = 60 }
+				fertility = 0.05
+				is_female = no
+				NOT = { trait = eunuch }
+				NOT = { trait = celibate }
+				OR = {
+					is_married = no
+					any_spouse = {
+						is_alive = yes
+						fertility = 0.05
+						NOT = { age = 40 }
+						NOT = { trait = eunuch }
+						NOT = { trait = celibate }
+						is_incapable = no
+					}
+				}	
+			}
+		}
+	}
+	
+	call_a_great_council_interregnum = { #council to determine heir
+		is_high_prio = yes
+		ai = no
+		potential = {
+			ai = no
+			primary_title = { 
+				higher_tier_than = DUKE
+				is_variable_equal = { which = "lord_paramount_status" value = 2 } 
+			}
+			NOT = { has_character_flag = called_interregnum_council }
+		}
+		allow = {		
+			war = no
+			conditional_tooltip = {
+				trigger = { tier = EMPEROR }
+				NOT = { trait = civil_war }
+			}
+		}
+		effect = {
+			hidden_tooltip = {
+				if = {
+					limit = {
+						NOT = { government = feudal_government_LP }
+						controls_religion = no
+						is_patrician = no
+						NOT = { trait = nightswatch }
+						primary_title = {
+							higher_tier_than = DUKE
+							is_variable_equal = { which = "lord_paramount_status" value = 2 }
+						}
+					}
+					set_government_type = feudal_government_LP
+					#remove special titles
+					if = {
+						limit = {
+							primary_title = {
+								OR = {
+									title = k_wolfswoodTK
+									title = k_barrowlandsTK
+									title = k_theneckTK
+									title = k_dreadfortTK
+									title = k_winterfellTK
+									title = k_riverrunTK
+									title = k_dragonstone
+									title = k_duskendaleTK
+									title = k_shipbreakerTK
+								}
+							}	
+						}
+						remove_special_character_title = yes
+					}
+				}
+				any_demesne_title = {
+					limit = { 
+						tier = ROOT
+						is_variable_equal = { which = "lord_paramount_status" value = 2 }
+						NOT = { has_law = succ_feudal_elective }
+					}
+					succession = feudal_elective
+				}
+				recalc_succession = yes
+				clr_character_flag = interregnum_regent
+			}
+			set_character_flag = called_interregnum_council
+			clr_character_flag = suspended_interregnum_council
+			custom_tooltip = {
+				text = TOOLTIPinterregnum.1COUNCIL
+				hidden_tooltip = {
+					primary_title = { #mark all claimants
+						any_character = {
+							limit = { 
+								has_claim = PREV 
+								can_press_claims_trigger = yes
+								OR = {
+									NOT = { has_global_flag = roberts_rebellion_interregnum }
+									ROOT = { NOT = { has_landed_title = e_iron_throne } }
+									NOT = { dynasty = 496 }
+								}
+								NOT = { has_character_modifier = deposed_AGOT }
+							}
+							set_character_flag = interregnum_title_claimant
+							add_trait = dead_target
+						}
+					}
+					character_event = { id = interregnum.2 }
+				}
+			}
+		}
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	construct_a_flagship = { 
+		only_playable = yes
+		potential = {
+			is_ruler = yes
+			NOT = { tier = BARON }
+			demesne_size = 1
+			is_nomadic = no
+			OR = {
+				tier = EMPEROR
+				AND = {
+					independent = yes
+					tier = KING
+					primary_title = { NOT = { check_variable = { which = "de_facto_empire" value = 1 } } }
+				}
+				is_patrician = yes
+				trait = pirate
+				is_seafarer = yes
+			}
+			NOT = {
+				any_artifact = { 
+					has_artifact_flag = flagship 
+				}
+			}
+			OR = {
+				NOT = { has_character_flag = construct_a_flagship }
+				had_character_flag = { flag = construct_a_flagship days = 9400 }
+			}	
+		}
+		allow = {
+			has_regent = no
+			wealth = 40
+			capital_scope = { port = yes }
+		}
+		effect = {
+			set_character_flag = construct_a_flagship
+			character_event = { id = ironborn_events.85 tooltip = ironborn_events.85 }
+		}
+		ai_check_interval = 12
+		ai_will_do = {
+			factor = 1
+			modifier = {
+				factor = 0.12
+			}
+			modifier = {
+				factor = 0
+				OR = {
+					war = yes
+					NOT = { wealth = 150 }
+				}	
+			}
+			modifier = {
+				factor = 0
+				has_character_modifier = loan_timer
+				OR = {
+					stewardship = 9
+					trait = temperate
+					NOT = { 
+						OR = {
+							trait = gluttonous 
+							trait = hedonist
+							trait = slothful
+						}	
+					}	
+				}	
+			}
+			modifier = {
+				factor = 5
+				OR = {
+					trait = ambitious
+					trait = proud
+				}	
+			}
+			modifier = {
+				factor = 0.1
+				OR = {
+					trait = content
+					trait = humble
+				}	
+			}
+		}
+	}
+	go_on_quest = {
+		ai = no
+		potential = {
+			ai = no
+			NOT = { has_character_flag = on_a_foreign_tour }
+			is_ruler = yes						
+			is_theocracy = no
+			NOT = { dynasty = 0 }
+			NOT = { culture = moon_clansman }
+			NOT = { culture_group = free_folk }
+			OR = {
+				is_female = no
+				female_get_masculine_event_trigger = yes
+			}
+			NOT = { trait = dragon }
+			NOT = { culture_group = winter_group }	
+			NOT = { culture_group = unoccupied_group }	
+			age = 14
+			NOT = { age = 30 }	
+			NOT = { has_character_modifier = went_on_foreign_tour }		
+		}
+		allow = {
+			show_only_failed_conditions = yes
+			wealth = 50 
+			prisoner = no
+			war = no 
+			OR = {
+				is_patrician = yes
+				higher_tier_than = COUNT
+			}
+			NOT = { is_inaccessible_trigger = yes }
+			in_command = no
+			age = 18
+			NOT = { age = 30 }		
+			NOT = { trait = content }
+			NOT = { trait = slothful }
+			has_epidemic = no
+			is_ill = no
+			NOT = { has_severe_disability_trigger = yes }	
+			can_press_claims_trigger = yes
+			is_priest = no			
+			NOT = { is_inaccessible_trigger = yes }
+			NOT = { has_minor_title = title_triarch }
+		}
+		effect = {
+			set_character_flag = on_a_foreign_tour # Safety check, use as fast trigger in all events
+			set_character_flag = page_1
+			character_event = { id = wikid.295 tooltip = TOOLTIPwikid.295 }
+		}
+
+		ai_will_do = {
+			factor = 0
+		}
+	}
+	
+	abdicate_decision = {
+		ai = no
+		potential = {
+			ai = no
+			has_game_rule = { name = abdication value = on }	
+		}
+		allow = {
+			age = 16
+			NOT = { is_incapable = yes }
+			prisoner = no	
+			war = no
+		}
+		
+		effect = {
+			prestige = -500
+			if = {
+				limit = { 
+					is_female = no
+					NOT = { trait = nightswatch }
+					nightswatch_culture_trigger = yes
+				}
+				tooltip = {
+					add_trait = nightswatch
+				}
+				set_character_flag = NW_volunteer
+				hidden_tooltip = { character_event = { id = nightswatch.20 } }
+				break = yes
+			}
+			hidden_tooltip = { #Universal on death/abdication event
+				set_character_flag = abdication
+				character_event = { id = 45341 } 
+				clr_character_flag = abdication
+				if = {
+					limit = { is_merchant_republic = no }
+					current_heir = { save_event_target_as = wealth_heir }
+				}
+				if = {
+					limit = { is_merchant_republic = yes }
+					family_palace = { current_heir = { save_event_target_as = wealth_heir } }
+				}
+				transfer_scaled_wealth = { to = event_target:wealth_heir value = all }
+			}
+			abdicate = yes
+		}
+		
+		ai_will_do = { 
+			factor = 0
+		}
+	}
+}
